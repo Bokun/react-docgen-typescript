@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "precommit": "lint-staged",
+    "postinstall": "npm run tsc",
     "tsc": "tsc",
     "prepublishOnly": "tsc -d",
     "test": "tsc && mocha --timeout 10000 ./lib/**/__tests__/**.js",
