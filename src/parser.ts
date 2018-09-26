@@ -27,6 +27,7 @@ export interface PropItem {
 
 export interface Component {
   name: string;
+  description?: string;
 }
 
 export interface PropItemType {
@@ -45,6 +46,7 @@ export type ComponentNameResolver = (exp: ts.Symbol, source: ts.SourceFile) => s
 
 export interface ParserOptions {
   propFilter?: StaticPropFilter | PropFilter;
+  skipCompsWithoutDocs?: boolean;
   componentNameResolver?: ComponentNameResolver;
 }
 
@@ -756,10 +758,16 @@ function parseWithProgramProvider(
           .getExportsOfModule(moduleSymbol)
           .map(exp => parser.getComponentInfo(exp, sourceFile, parserOpts.componentNameResolver))
           .filter((comp): comp is ComponentDoc => comp !== null)
+          .filter(comp => {
+            return (
+                !parserOpts.skipCompsWithoutDocs ||
+                (parserOpts.skipCompsWithoutDocs && comp.description.length !== 0)
+            );
+          })
           .filter((comp, index, comps) =>
             comps
-              .slice(index + 1)
-              .every(innerComp => innerComp!.displayName !== comp!.displayName)
+                .slice(index + 1)
+                .every(innerComp => innerComp!.displayName !== comp!.displayName)
           )
       );
 
